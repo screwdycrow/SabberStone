@@ -4,6 +4,7 @@ using SabberStoneCore.Enums;
 using SabberStoneCoreAi.POGame;
 using SabberStoneCoreAi.Agent.ExampleAgents;
 using SabberStoneCoreAi.Agent;
+using SabberStoneCoreAi.Meta;
 
 namespace SabberStoneCoreAi
 {
@@ -21,18 +22,21 @@ namespace SabberStoneCoreAi
 				StartPlayer = 1,
 				Player1HeroClass = CardClass.MAGE,
 				Player2HeroClass = CardClass.MAGE,
-				FillDecks = true,
 				Logging = false
 			};
+			gameConfig.Player1Name = "Gamias";
+			gameConfig.Player2Name = "Looser";
+			gameConfig.Player1Deck = Decks.AggroPirateWarrior;
+			gameConfig.Player2Deck = Decks.AggroPirateWarrior;
 
 			Console.WriteLine("Setup POGameHandler");
-			AbstractAgent player1 = new FaceHunter();
+			AbstractAgent player1 = new src.Agent.MyAgent();
 			AbstractAgent player2 = new FaceHunter();
 			var gameHandler = new POGameHandler(gameConfig, player1, player2, debug:true);
 
 			Console.WriteLine("PlayGame");
 			//gameHandler.PlayGame();
-			gameHandler.PlayGames(10);
+			gameHandler.PlayGames(100);
 			GameStats gameStats = gameHandler.getGameStats();
 
 			gameStats.printResults();

@@ -30,7 +30,7 @@ namespace SabberStoneCoreAi.Agent.ExampleAgents
 		{
 			List<PlayerTask> options = poGame.CurrentPlayer.Options();
 			return getBestMove(poGame, options);
-		}
+		}	
 
 
 
@@ -52,7 +52,7 @@ namespace SabberStoneCoreAi.Agent.ExampleAgents
 			if (minionAttacks.Count > 0)
 				return minionAttacks.First.Value;
 
-			PlayerTask summonMinion = null;
+			PlayerTask   summonMinion = null;
 			foreach (PlayerTask task in options)
 			{
 				if (task.PlayerTaskType == PlayerTaskType.PLAY_CARD)
