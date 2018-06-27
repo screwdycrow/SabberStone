@@ -20,30 +20,52 @@ namespace SabberStoneCoreAi
 			GameConfig gameConfig = new GameConfig
 			{
 				StartPlayer = 1,
-				Player1HeroClass = CardClass.MAGE,
-				Player2HeroClass = CardClass.MAGE,
-				Logging = false
+				Player1HeroClass = CardClass.WARRIOR,
+				Player2HeroClass = CardClass.WARRIOR,
+				Logging = true
 			};
-			gameConfig.Player1Name = "Gamias";
-			gameConfig.Player2Name = "Looser";
-			gameConfig.Player1Deck = Decks.AggroPirateWarrior;
-			gameConfig.Player2Deck = Decks.AggroPirateWarrior;
-
+			gameConfig.Player1Name = "Sky";
+			gameConfig.Player2Name = "Net";
+			gameConfig.Player1Deck = Decks.RenoKazakusMage;			//the actual deck i decided to play since i am Barchelor : RenoKazakusMage
 			Console.WriteLine("Setup POGameHandler");
-			AbstractAgent player1 = new src.Agent.MyAgent();
-			AbstractAgent player2 = new FaceHunter();
-			var gameHandler = new POGameHandler(gameConfig, player1, player2, debug:true);
+			AbstractAgent player2 = new src.Agent.MyAgent();
+			AbstractAgent player1 = new RandomAgent();
+			
 
 			Console.WriteLine("PlayGame");
 			//gameHandler.PlayGame();
-			gameHandler.PlayGames(100);
-			GameStats gameStats = gameHandler.getGameStats();
 
-			gameStats.printResults();
+			// play against every deck 
+			for (int j = 0; j<3; j++)
+			{
+				switch (j)
+				{
+					case 0:
+						Console.WriteLine("Playing against AggroPirateWarrior");
+						gameConfig.Player2Deck = Decks.AggroPirateWarrior;
+						break;
+					case 1:
+						Console.WriteLine("Playing against RenoKazakusMage");
+						gameConfig.Player2Deck = Decks.RenoKazakusMage;
+						break;
+					case 2:
+						Console.WriteLine("Playing against MidrangeJadeShaman");
+						gameConfig.Player2Deck = Decks.MidrangeJadeShaman;
+						break;
+				}
 
-
-			Console.WriteLine("Test successful");
+				//100 games per opponent deck  
+					var gameHandler = new POGameHandler(gameConfig, player1, player2, debug: false);
+					gameHandler.PlayGames(100);
+					GameStats gameStats = gameHandler.getGameStats();
+					gameStats.printResults();
+					Console.WriteLine("Test successful");
+				
+			}
+			Console.WriteLine("Test Ended");
 			Console.ReadLine();
+
+
 		}
 	}
 }

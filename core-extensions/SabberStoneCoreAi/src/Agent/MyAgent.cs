@@ -9,13 +9,11 @@ using SabberStoneCoreAi.src.Agent.Helpers;
 
 namespace SabberStoneCoreAi.src.Agent
 {
-
-	enum Strategy {Exploitation, Exploration};
-
+	enum Weight { Damage, MonstersKilled, MonstersPlaced}
 	class MyAgent : AbstractAgent
 	{
-		protected Strategy Strategy = Strategy.Exploitation;
 		private SabberStoneCoreAi.POGame.POGame CurrentPoGame;
+		private Dictionary<Weight, int> Weights;
 
 		public override void FinalizeAgent()
 		{
@@ -26,35 +24,74 @@ namespace SabberStoneCoreAi.src.Agent
 		}
 
 		public override PlayerTask GetMove(SabberStoneCoreAi.POGame.POGame poGame)
-		{ 
+		{
 			CurrentPoGame = poGame;
+			ChangeStrategy();
 			List<PlayerTask> actions = poGame.CurrentPlayer.Options();
-			Dictionary<PlayerTask,POGame.POGame> resultedictionary = poGame.Simulate(actions);
-			//LinkedList<PlayerTask> minionAttacks = new LinkedList<PlayerTask>();
-
-			/*foreach (PlayerTask task in options)
-			{
-				if (task.PlayerTaskType == PlayerTaskType.MINION_ATTACK && task.Target == poGame.CurrentOpponent.Hero)
-				{
-					minionAttacks.AddLast(task);
-				}
-			}
-			return options[1];
-			*/
+			Dictionary<PlayerTask, POGame.POGame> resultedictionary = poGame.Simulate(actions);
 			List<int> rewards = GetActionsRewards(actions, resultedictionary);
 			return actions[pickAction(rewards)];
 		}
 
 		/// <summary>
+		/// change the reward to weights to  exploit the chance to deal damage to the enemy's
+		/// </summary>
+		private void FullDamage()
+		{
+			this.Weights[Weight.Damage] = 6;			// maximize the damage
+			this.Weights[Weight.MonstersPlaced] = 2;	// keep the ones in case there is no move for damage.
+			this.Weights[Weight.MonstersKilled] = 1;
+		}
+
+		/// <summary>
+		/// change the reward to try and gain control over the zone board
+		/// </summary>
+		private void Control()
+		{
+			this.Weights[Weight.Damage] = 1;
+			this.Weights[Weight.MonstersPlaced] = 4;	//we want to balance the ammount of monsters we lost to the monsters we kill
+			this.Weights[Weight.MonstersKilled] = 4;	// 1 - 4 - 4 strategy 
+		}
+
+		/// <summary>
+		/// change the weights to try to keep a relative balance .
+		/// </summary>
+		private void Balanced()
+		{
+			this.Weights[Weight.Damage] = 2;
+			this.Weights[Weight.MonstersPlaced] = 3;    
+			this.Weights[Weight.MonstersKilled] = 4;
+		}
+		/// <summary>
+		/// change the strategy based on some checkpoints
+		/// </summary>
+		private void ChangeStrategy()
+		{
+			//if (CurrentPoGame.CurrentOpponent.Hero.Health < 10 && CurrentPoGame.CurrentPlayer.Hero.Health > 15 ) FullDamage();
+			if (CurrentPoGame.CurrentPlayer.Hero.Health < 10) Control();
+			//if (CurrentPoGame.CurrentOpponent.Hero.Health < 2 ) FullDamage();
+
+		}
+		/// <summary>
 		/// calculates the reward for an action.
 		/// </summary>
-		/// <param name="task"></param>
-		/// <returns></returns>
+		/// <param name="resultedState"></param>
+		/// <returns> reward of the action as int</returns>
 		private int ActionReward(POGame.POGame resultedState)
 		{
 			ActionResults results = new ActionResults(this.CurrentPoGame, resultedState);
-			int  reward = results.DamageDealt *3+ results.MonstersKilled *1+ results.MonstersPlaced*3;
-			return reward ;
+			if (resultedState.CurrentOpponent.Hero.Health <= 0)
+			{
+				return  100;
+			}
+			else {
+
+				return 
+					results.DamageDealt * Weights[Weight.Damage] +
+					results.MonstersKilled * Weights[Weight.MonstersKilled] +
+					results.MonstersPlaced * Weights[Weight.MonstersPlaced];
+			}
+			
 		}
 		/// <summary>
 		/// returns the rewards for every available action
@@ -64,7 +101,6 @@ namespace SabberStoneCoreAi.src.Agent
 		private List<int> GetActionsRewards(List<PlayerTask> actions, Dictionary<PlayerTask, POGame.POGame> taskResults)
 		{
 			List<int> rewards = new List<int>();
-
 			foreach (PlayerTask action in actions)
 			{
 				int reward = 0;
@@ -103,6 +139,8 @@ namespace SabberStoneCoreAi.src.Agent
 
 		public override void InitializeAgent()
 		{
+			this.Weights = new Dictionary<Weight, int>();
+			FullDamage();
 		}
 
 		public override void InitializeGame()
