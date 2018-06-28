@@ -19,12 +19,12 @@ namespace SabberStoneCoreAi.Agent.ExampleAgents
 
 		public override void FinalizeAgent()
 		{
+
 			//Nothing to do here
 		}
 
 		public override void FinalizeGame()
 		{
-			//Nothing to do here
 		}
 
 		public override PlayerTask GetMove(SabberStoneCoreAi.POGame.POGame poGame)

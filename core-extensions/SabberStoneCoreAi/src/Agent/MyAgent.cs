@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SabberStoneCore.Enums;
 using SabberStoneCore.Model;
 using SabberStoneCore.Tasks;
 using SabberStoneCoreAi.Agent;
@@ -18,10 +19,12 @@ namespace SabberStoneCoreAi.src.Agent
 
 		public override void FinalizeAgent()
 		{
+
 		}
 
 		public override void FinalizeGame()
 		{
+			Console.Write("|");
 		}
 
 		public override PlayerTask GetMove(SabberStoneCoreAi.POGame.POGame poGame)
@@ -80,9 +83,9 @@ namespace SabberStoneCoreAi.src.Agent
 		/// </summary>
 		private void ChangeStrategy()
 		{
-			if (CurrentPoGame.CurrentPlayer.Hero.Health < 10) Control();
-			if (CurrentPoGame.CurrentOpponent.Hero.Health < 4 ) FullDamage();
-			if (CurrentPoGame.CurrentOpponent.BoardZone.Count> 4 ) Control();
+//			if (CurrentPoGame.CurrentPlayer.Hero.Health < 10) Control();
+//			if (CurrentPoGame.CurrentOpponent.Hero.Health < 4 ) FullDamage();
+//			if (CurrentPoGame.CurrentOpponent.BoardZone.Count> 4 ) Control();
 			//if (CurrentPoGame.CurrentPlayer.DeckZone.Count() == 1) Healing();
 
 		}
@@ -121,7 +124,7 @@ namespace SabberStoneCoreAi.src.Agent
 				int reward = 0;
 				if(action.PlayerTaskType == PlayerTaskType.END_TURN)
 				{
-					reward = -1;
+					reward = -10;
 				}
 				else
 				{

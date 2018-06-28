@@ -33,10 +33,11 @@ namespace SabberStoneCoreAi
 				Console.WriteLine("-> Mirror:"+deck.Key+" vs RenokazakusMage (me)" );
 			
 				playGame(gameConfig, player2, player1);
+				Console.WriteLine("");
 
 			}
 
-			Console.WriteLine("Test successful");
+			Console.WriteLine(" -----------------------------");
 		}
 		/// <summary>
 		/// plays the game, a function to reduce repeated code.
@@ -67,10 +68,10 @@ namespace SabberStoneCoreAi
 			GameConfig gameConfig = new GameConfig
 			{
 				StartPlayer = 1,
-				Player1HeroClass = CardClass.WARRIOR,
-				Player2HeroClass = CardClass.WARRIOR,
+
 				Logging = true
 			};
+		
 			gameConfig.Player1Name = "Sky";
 			gameConfig.Player2Name = "Net";
 			gameConfig.Player1Deck = Decks.RenoKazakusMage;											//My Deck
@@ -87,17 +88,18 @@ namespace SabberStoneCoreAi
 			
 			Console.WriteLine("Start Games ");
 
-			/*Console.WriteLine("=== MyAgent vs Random Agent=== ");
+			Console.WriteLine("=== MyAgent vs Random Agent=== ");
 		    player2 = new RandomAgent();														//play all games against the Random Agent
 			Helper.SimulateAllGames(gameConfig, player1, player2, decksAvailable);
 
 	
 			Console.WriteLine("=== MyAgent vs RandomLateEnd Agent ===");
 
-			/* i achieve around ~72% on two occasions against 
-			 * this agent and >90% in some others, but it was not announced,
+			/* i achieve around  >80 % on one occasions against AggroPirate
+			 * with this agent and >90% in others, but it was not announced,
 			 * until 25 june that i had to compete against this as well,
-			 * so i didn' try to make something better and sophisticated
+			 * so i didn' try to make something better and sophisticated, cause
+			 * no time.
 			*/
 
 			//play all games against the RandomLateEnd Agent,
