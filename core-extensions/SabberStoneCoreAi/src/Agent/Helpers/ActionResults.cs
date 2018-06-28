@@ -8,14 +8,13 @@ namespace SabberStoneCoreAi.src.Agent.Helpers
      class ActionResults
     {
 		public int MySpentMana;
-		public int MyManaCapacity;
 		public int MonstersPlaced;
 		public int DamageDealt;
 		public int HealthDiff;
 		public int MonstersKilled;
 		public ActionResults(POGame.POGame startState, POGame.POGame lastState)
 		{
-			this.HealthDiff = startState.CurrentOpponent.Hero.Health -   lastState.CurrentPlayer.Hero.Health;
+			this.HealthDiff = startState.CurrentPlayer.Hero.Health -   lastState.CurrentPlayer.Hero.Health;
 			this.MySpentMana = startState.CurrentPlayer.RemainingMana - lastState.CurrentPlayer.RemainingMana;
 			this.DamageDealt = startState.CurrentOpponent.Hero.Health - lastState.CurrentOpponent.Hero.Health;
 			this.MonstersKilled = startState.CurrentOpponent.BoardZone.Count - lastState.CurrentOpponent.BoardZone.Count;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SabberStoneCore.Model;
 using SabberStoneCore.Tasks;
 using SabberStoneCoreAi.Agent;
 using SabberStoneCoreAi.POGame;
@@ -9,7 +10,7 @@ using SabberStoneCoreAi.src.Agent.Helpers;
 
 namespace SabberStoneCoreAi.src.Agent
 {
-	enum Weight { Damage, MonstersKilled, MonstersPlaced}
+	enum Weight { Damage, MonstersKilled, MonstersPlaced, HealthDifference}
 	class MyAgent : AbstractAgent
 	{
 		private SabberStoneCoreAi.POGame.POGame CurrentPoGame;
@@ -38,9 +39,10 @@ namespace SabberStoneCoreAi.src.Agent
 		/// </summary>
 		private void FullDamage()
 		{
-			this.Weights[Weight.Damage] = 6;			// maximize the damage
+			this.Weights[Weight.Damage] = 5;			// maximize the damage
 			this.Weights[Weight.MonstersPlaced] = 2;	// keep the ones in case there is no move for damage.
-			this.Weights[Weight.MonstersKilled] = 1;
+			this.Weights[Weight.MonstersKilled] = 2;
+			this.Weights[Weight.HealthDifference] = 0;
 		}
 
 		/// <summary>
@@ -50,7 +52,9 @@ namespace SabberStoneCoreAi.src.Agent
 		{
 			this.Weights[Weight.Damage] = 1;
 			this.Weights[Weight.MonstersPlaced] = 4;	//we want to balance the ammount of monsters we lost to the monsters we kill
-			this.Weights[Weight.MonstersKilled] = 4;	// 1 - 4 - 4 strategy 
+			this.Weights[Weight.MonstersKilled] = 4;    // 1 - 4 - 4 strategy
+			this.Weights[Weight.HealthDifference] = 0;
+
 		}
 
 		/// <summary>
@@ -61,15 +65,25 @@ namespace SabberStoneCoreAi.src.Agent
 			this.Weights[Weight.Damage] = 2;
 			this.Weights[Weight.MonstersPlaced] = 3;    
 			this.Weights[Weight.MonstersKilled] = 4;
+			this.Weights[Weight.HealthDifference] = 0;
+
+		}
+		private void Healing()
+		{
+			this.Weights[Weight.Damage] = 0;
+			this.Weights[Weight.MonstersPlaced] = 0;
+			this.Weights[Weight.MonstersKilled] = 0;
+			this.Weights[Weight.HealthDifference] = 10;
 		}
 		/// <summary>
-		/// change the strategy based on some checkpoints
+		/// change the strategy based on some checkpoints, kinda achieves better results :P 
 		/// </summary>
 		private void ChangeStrategy()
 		{
-			//if (CurrentPoGame.CurrentOpponent.Hero.Health < 10 && CurrentPoGame.CurrentPlayer.Hero.Health > 15 ) FullDamage();
 			if (CurrentPoGame.CurrentPlayer.Hero.Health < 10) Control();
-			//if (CurrentPoGame.CurrentOpponent.Hero.Health < 2 ) FullDamage();
+			if (CurrentPoGame.CurrentOpponent.Hero.Health < 4 ) FullDamage();
+			if (CurrentPoGame.CurrentOpponent.BoardZone.Count> 4 ) Control();
+			//if (CurrentPoGame.CurrentPlayer.DeckZone.Count() == 1) Healing();
 
 		}
 		/// <summary>
@@ -82,13 +96,14 @@ namespace SabberStoneCoreAi.src.Agent
 			ActionResults results = new ActionResults(this.CurrentPoGame, resultedState);
 			if (resultedState.CurrentOpponent.Hero.Health <= 0)
 			{
-				return  100;
+				return  100;														//make sure to choose the action that actually ends the game :P 
 			}
 			else {
 
 				return 
 					results.DamageDealt * Weights[Weight.Damage] +
 					results.MonstersKilled * Weights[Weight.MonstersKilled] +
+					results.HealthDiff * Weights[Weight.HealthDifference]+
 					results.MonstersPlaced * Weights[Weight.MonstersPlaced];
 			}
 			
@@ -110,6 +125,16 @@ namespace SabberStoneCoreAi.src.Agent
 				}
 				else
 				{
+					/*
+					 *For some reason, there are times that i get a
+					 * null reference exception on the poGame
+					 * and that causes me to lose the game, i have no idea why,
+					 * and it is pretty difficult to find out, so here is an
+					 * error handling to at least return 0 reward and prevent
+					 * me from losing the game. That clearely affect the perfomance
+					 * of this  simple agent, but hey... there is also not a
+					 * proper documentation on shaberstone, sooo...
+					 * */
 					try
 					{
 						reward = ActionReward(taskResults[action]);
@@ -121,6 +146,7 @@ namespace SabberStoneCoreAi.src.Agent
 					}
 
 				}
+
 				rewards.Add(reward);
 
 			}
@@ -140,7 +166,7 @@ namespace SabberStoneCoreAi.src.Agent
 		public override void InitializeAgent()
 		{
 			this.Weights = new Dictionary<Weight, int>();
-			FullDamage();
+			Control();										// renoKazakusMage seems to perform better with a damage oriented approach...
 		}
 
 		public override void InitializeGame()
